@@ -25,6 +25,15 @@ Request Body (UserUpdate): Contiene la información sensible o compleja que se v
 
 Query Parameter (confirm): Es un filtro o bandera opcional. En este caso, lo usaremos para preguntar si queremos que el sistema envíe un SMS de confirmación tras el cambio.
 
+# Parámetros de Query y Validaciones de String
+
+### 1. ¿Qué es Annotated y por qué usarlo?
+- Anteriormente, FastAPI ponía las validaciones directamente en el valor por defecto del parámetro. La forma    moderna (desde Python 3.9+) es usar Annotated.
+
+- Annotated es una funcionalidad de Python (introducida en la versión 3.9) que permite añadir metadatos a los tipos de datos sin cambiar el comportamiento del tipo en sí.
+
+- Query es una clase de FastAPI que se utiliza para declarar validaciones y metadatos específicos para los parámetros de consulta (los que van después del ? en la URL).
+
 
 
 
