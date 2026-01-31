@@ -88,5 +88,98 @@ FastAPI/Pydantic convierten automáticamente formatos complejos de texto (JSON) 
 - Decimal: Úsalo SIEMPRE para dinero, impuestos y contabilidad.
 Nota técnica: Al enviar un Decimal a través de FastAPI, se recibe como un número en el JSON, pero Pydantic lo convierte internamente al objeto Decimal de Python para mantener la precisión durante los cálculos.
 
-### 🍪 Netx topic
-Parámetros de las cookies
+### 🍪 Cookies
+⚠️ Regla Financiera: float vs Decimal
+- float: Úsalo para datos científicos, distancias o física, donde un error infinitesimal no importa.
+- Decimal: Úsalo SIEMPRE para dinero, impuestos y contabilidad.
+
+Las cookies no son para enviar grandes volúmenes de datos, sino para identificadores persistentes.
+- Sesiones de usuario: Guardar un session_id para saber quién está logueado sin pedir la contraseña en cada clic.
+- Preferencias del cliente: Idioma preferido (español/inglés), tema (oscuro/claro).
+- Seguimiento (Analytics): Identificar si un usuario es recurrente.
+
+🍪 Parámetros de las Cookies
+Las cookies permiten persistencia entre peticiones de forma automática por parte del navegador.
+- Clase Cookie: Se usa para declarar parámetros que el cliente debe enviar en el encabezado Cookie.
+- Uso de Annotated: Al igual que con Query, permite separar el tipo de dato de la validación del metadato.
+- Limitación: Los navegadores limitan el tamaño de las cookies (generalmente 4KB), por lo que solo deben contener identificadores o configuraciones mínimas.
+
+#### Importante
+🔄 El Gran Paralelo: ¿Qué usar, cuándo y por qué?
+##### 1. Path:
+- ¿Qué es?: Parte de la URL fija.
+- ¿Cuándo usarlo?: Para identificar un recurso específico.
+- Ejemplo Real: /cuentas/{cuenta_id}
+
+##### 2. Query:
+- ¿Qué es?: Después del ? en la URL.
+- ¿Cuándo usarlo?: Para filtrar, ordenar o buscar datos.
+- Ejemplo Real: ?moneda=USD&limite=10
+
+##### 3. Header:
+- ¿Qué es?: Metadatos "invisibles".
+- ¿Cuándo usarlo?: Seguridad, versiones, tokens o tipo de dispositivo.
+- Ejemplo Real: X-API-Key, User-Agent
+
+##### 4. Cookie:
+- ¿Qué es?: Almacén en el navegador.
+- ¿Cuándo usarlo?: Sesiones o preferencias que deben persistir solas.
+- Ejemplo Real: session_id, dark_mode
+
+##### 5. Body:
+- ¿Qué es?: El objeto JSON.
+- ¿Cuándo usarlo?: Para enviar mucha información o datos complejos.
+- Ejemplo Real: Datos para crear un préstamo.
+
+🚀 Dominando los Canales de Comunicación
+Un experto en FastAPI sabe que:
+
+- Path identifica el "QUÉ".
+- Query define el "CÓMO" lo quiero ver.
+- Header dice el "QUIÉN" o "DESDE DÓNDE" técnicamente.
+- Body contiene el "CONTENIDO" pesado.
+
+Tip de Oro: Usa siempre Annotated para todos estos. Mantiene tu código consistente y permite que herramientas como Pytest o MyPy entiendan mejor tu código.
+
+### 🍪 Modelos de Cookies y Header
+
+- Si tienes un grupo de cookies relacionadas, puedes crear un modelo de Pydantic para declararlas. 🍪
+Esto le permitiría reutilizar el modelo en varios lugares y también declarar validaciones y metadatos para todos los parámetros a la vez. 😎
+
+- Si tiene un grupo de parámetros de encabezado relacionados , puede crear un modelo de Pydantic para declararlos.
+Esto le permitiría reutilizar el modelo en varios lugares y también declarar validaciones y metadatos para todos los parámetros a la vez. 😎
+Puedes usar modelos de Pydantic para declarar encabezados en FastAPI . 😎
+
+##  Modelo de respuesta - Tipo de retorno
+
+Puede declarar el tipo utilizado para la respuesta anotando el tipo de retorno de la función de operación de ruta .
+Puede utilizar anotaciones de tipo de la misma manera que lo haría para los datos de entrada en los parámetros de función , puede utilizar modelos de Pydantic, listas, diccionarios, valores escalares como números enteros, booleanos, etc.
+
+#### response_model:
+
+
+
+- response_model Parámetro
+Hay algunos casos en los que necesitas o deseas devolver algunos datos que no son exactamente los que declara el tipo.
+
+- response_model Prioridad¶
+Si declara tanto un tipo de retorno como un response_model, response_modeltendrán prioridad y serán utilizados por FastAPI.
+
+- Utilice el parámetro del decorador de operaciones de rutaresponse_model para definir modelos de respuesta y, especialmente, para garantizar que se filtren los datos privados.
+Úselo response_model_exclude_unsetpara devolver solo los valores establecidos explícitamente.
+
+##### 📤 Modelo de Respuesta (Response Model)
+El modelo de respuesta es el "escudo" de tu API. Controla qué datos salen hacia el cliente.
+Puntos Clave:
+- Filtrado Automático: Si un campo no está en el modelo de respuesta, no se envía (ideal para ocultar passwords o IDs internos).
+- Conversión de Tipos: Si devuelves un objeto de base de datos (ORM), FastAPI lo convierte automáticamente a JSON basándose en el modelo.
+- Seguridad: Evita la fuga de información sensible accidental.
+- Pro-Tip: Siempre intenta que tus modelos de entrada (UserCreate) sean diferentes a tus modelos de salida (UserOut). Esto te da un control total sobre el ciclo de vida del dato.
+
+#### Eplicaion del ejemplo en "06_coffee_shop_integrator.py"
+
+🧠 Arquitectura de la Solución
+- Modelos de Datos (Pydantic): Definen la forma de la información. Field valida el contenido.
+- Tipos Reutilizables (Annotated): Son "super-tipos" que empaquetan la validación. Ayudan a que el código sea DRY (Don't Repeat Yourself).
+- Operaciones de Ruta: Son los verbos de tu aplicación (POST = Crear, GET = Leer).
+- Response Model: Es el contrato final. Garantiza que el cliente reciba exactamente lo que prometimos y nada más.
