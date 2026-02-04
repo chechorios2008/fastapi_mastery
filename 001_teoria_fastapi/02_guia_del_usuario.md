@@ -157,8 +157,6 @@ Puede utilizar anotaciones de tipo de la misma manera que lo haría para los dat
 
 #### response_model:
 
-
-
 - response_model Parámetro
 Hay algunos casos en los que necesitas o deseas devolver algunos datos que no son exactamente los que declara el tipo.
 
@@ -183,3 +181,43 @@ Puntos Clave:
 - Tipos Reutilizables (Annotated): Son "super-tipos" que empaquetan la validación. Ayudan a que el código sea DRY (Don't Repeat Yourself).
 - Operaciones de Ruta: Son los verbos de tu aplicación (POST = Crear, GET = Leer).
 - Response Model: Es el contrato final. Garantiza que el cliente reciba exactamente lo que prometimos y nada más.
+
+##  Datos del formulario
+- Cuando necesite recibir campos de formulario en lugar de JSON, puede utilizar Form.
+
+## Modelos de formulario
+- Puede utilizar modelos de Pydantic para declarar campos de formulario en FastAPI.
+
+## Solicitar archivos
+- Puede definir los archivos que el cliente cargará usando File.
+- ImportarFile
+- Definir Fileparámetros
+- Parámetros de archivo conUploadFile
+- UploadFile
+- Carga de archivos opcional
+- UploadFilecon metadatos adicionales
+- Cargas de archivos múltiples
+
+## Formularios y archivos de solicitud
+Puede definir archivos y campos de formulario al mismo tiempo utilizando Filey Form
+Utilice Filey Formjuntos cuando necesite recibir datos y archivos en la misma solicitud.
+
+## Manejo de errores
+🛡️ Estrategia de Manejo de Errores
+- HTTPException: Úsala para errores esperados en el flujo normal (404, 401).
+- Global Handlers: Úsalos para "limpiar" el código. En lugar de usar try/except en cada ruta, lanza una excepción y deja que el handler la capture.
+- Validation Override: Es clave para internacionalizar (traducir) los errores que Pydantic genera automáticamente.
+- Status Codes: Usa siempre el módulo status de FastAPI (status.HTTP_404_NOT_FOUND) en lugar de números mágicos (404) para mayor claridad.
+
+#### Los pilares del error. 
+##### A. HTTPException: El estándar
+Es la forma más directa de detener el flujo de una función. Cuando lanzas (raise) una HTTPException, FastAPI detiene todo y envía la respuesta al cliente.
+Pro-Tip: Puedes agregar el parámetro headers para enviar información técnica adicional (como WWW-Authenticate en errores de login).
+
+##### B. Controladores Personalizados (Exception Handlers)
+Imagina que quieres que todos los errores de tipo "Saldo Insuficiente" en tu banco tengan el mismo formato. En lugar de repetir código en cada ruta, creas un "escuchador" global que captura esa excepción específica y la formatea.
+
+##### C. RequestValidationError: El Guardián de Pydantic
+Cuando un cliente envía un JSON mal formado (por ejemplo, un string donde iba un número), FastAPI lanza automáticamente un RequestValidationError.
+
+Poder de Experto: Puedes anular (override) este comportamiento para que, en lugar del error estándar, tu API devuelva un mensaje más amigable o en español.
