@@ -221,3 +221,26 @@ Imagina que quieres que todos los errores de tipo "Saldo Insuficiente" en tu ban
 Cuando un cliente envía un JSON mal formado (por ejemplo, un string donde iba un número), FastAPI lanza automáticamente un RequestValidationError.
 
 Poder de Experto: Puedes anular (override) este comportamiento para que, en lugar del error estándar, tu API devuelva un mensaje más amigable o en español.
+
+### Configuración de la operación de ruta
+Puede definir el (HTTP) status_codeque se utilizará en la respuesta de su operación de ruta .
+Puedes pasar directamente el intcódigo, como 404.
+Pero si no recuerdas para qué sirve cada código numérico, puedes usar las constantes de acceso directo en status.
+
+##### ¿Para qué sirven estas configuraciones?
+1. Organización (Etiquetas): Imagina una API con 100 rutas. Sin etiquetas, es un caos. Con etiquetas, Swagger las agrupa por "Módulos" (ej: Usuarios, Pagos, Inventario).
+
+2. Claridad (Summary/Description): El summary es el título corto, y description es el manual de uso detallado que soporta Markdown.
+
+3. Consistencia (Enum): Usar enumeraciones en las etiquetas evita errores de dedo (como escribir "Facturacion" en una ruta y "Facturación" en otra), lo que crearía dos secciones diferentes en Swagger.
+
+🎨 Configuración de Operación de Ruta
+Estas herramientas definen los metadatos de la documentación OpenAPI.
+
+- Tags: Agrupan rutas en el Swagger. Usar Enum garantiza que no haya categorías duplicadas por errores tipográficos.
+
+- Summary: Es el título de la ruta en la interfaz. Si no se pone, FastAPI usa el nombre de la función (reemplazando guiones bajos por espacios).
+
+- Description: Soporta Markdown. Úsalo para explicar reglas de negocio complejas.
+
+- Deprecated: Un booleano que tacha la ruta en la documentación, indicando que dejará de funcionar pronto pero sigue activa por ahora.
