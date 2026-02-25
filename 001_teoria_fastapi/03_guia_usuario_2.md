@@ -34,3 +34,5 @@ para aplicar actualizaciones parciales deberías:
 - PUT: Reemplaza todo. Útil para consistencia total.
 - PATCH: Actualiza solo lo necesario. Requiere que los campos del esquema sean opcionales.
 - exclude_unset=True: Es la clave de las actualizaciones parciales. Evita que los valores por defecto del esquema Pydantic "pisen" los valores reales de la base de datos.
+
+### Dependencias
