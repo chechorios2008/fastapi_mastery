@@ -35,4 +35,66 @@ para aplicar actualizaciones parciales deberías:
 - PATCH: Actualiza solo lo necesario. Requiere que los campos del esquema sean opcionales.
 - exclude_unset=True: Es la clave de las actualizaciones parciales. Evita que los valores por defecto del esquema Pydantic "pisen" los valores reales de la base de datos.
 
-### Dependencias
+
+# Registro Teórico: Programación Asíncrona con Bases de Datos
+## Librería: aiosqlite
+
+### 1. Definición
+`aiosqlite` es un wrapper asíncrono para la librería estándar `sqlite3` de Python. Utiliza hilos internos para permitir que las operaciones de I/O (entrada/salida) de la base de datos no bloqueen el bucle de eventos (Event Loop) de la aplicación.
+
+### 2. Por qué es necesaria en FastAPI
+Por defecto, SQLite es síncrono. Si usamos `sqlite3` estándar dentro de una ruta `async def`, el servidor se detendrá por completo durante cada consulta. 
+* **Problema:** Si una consulta tarda 2 segundos, la API no responderá a nadie más durante ese tiempo.
+* **Solución:** Con `aiosqlite`, usamos `await db.execute(...)`, permitiendo que FastAPI atienda otras llamadas mientras la DB procesa la información.
+
+### 3. Comparativa de Código
+
+#### ❌ Síncrono (Bloqueante)
+```python
+import sqlite3
+
+def get_data():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.execute("SELECT * FROM users") # El programa se detiene aquí
+    return cursor.fetchall()
+
+# 🛣️ APIRouter: Modularización en FastAPI
+
+## 1. ¿Qué es un APIRouter?
+En aplicaciones pequeñas, puedes poner todas tus rutas en el archivo `main.py`. Sin embargo, a medida que el proyecto crece (ej. gestión de usuarios, posts, pagos, notificaciones), el archivo se vuelve inmanejable.
+
+`APIRouter` es una clase que permite definir rutas de forma aislada en archivos separados y luego "agruparlas" en la aplicación principal.
+
+
+
+## 2. ¿Para qué sirve?
+* **Organización:** Separa la lógica por dominios (Usuarios con usuarios, Posts con posts).
+* **Reutilización:** Puedes definir configuraciones comunes para un grupo de rutas una sola vez.
+* **Mantenimiento:** Facilita el trabajo en equipo, ya que diferentes programadores pueden trabajar en archivos distintos sin causar conflictos.
+
+## 3. Anatomía de la Inclusión
+Cuando usas `app.include_router()`, estás configurando tres elementos clave:
+
+| Parámetro | Propósito | Ejemplo |
+| :--- | :--- | :--- |
+| **router** | El objeto router importado del archivo hijo. | `users.router` |
+| **prefix** | Un camino de URL que se antepondrá a todas las rutas de ese archivo. | `/api/users` |
+| **tags** | Etiquetas para agrupar las rutas en la documentación automática (/docs). | `["users"]` |
+
+## 4. El Flujo de una Petición (Routing Table)
+FastAPI no busca archivos en el disco duro cada vez que llega una petición. Al iniciar, construye una **Tabla de Rutas en memoria**:
+
+1. **Registro:** `main.py` lee los archivos de los routers y llena su mapa.
+2. **Matching:** Cuando llega una petición (ej. `GET /api/users/5`), FastAPI busca en su mapa cuál función coincide con esa **URL** y ese **Método HTTP**.
+3. **Ejecución:** Salta directamente a la función correspondiente en el archivo donde fue definida.
+
+## 5. Ejemplo de Estructura Profesional
+```text
+proyecto/
+├── main.py          # Centralizador (Administrador)
+├── database.py      # Conexión a DB
+├── models.py        # Modelos de SQLAlchemy
+├── schemas.py       # Modelos de Pydantic
+└── routers/         # Carpeta de módulos (Barrios)
+    ├── users.py
+    └── posts.py
